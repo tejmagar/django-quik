@@ -12,6 +12,8 @@ like other livereload packages.
 pip install django-quik
 ```
 
+Make sure to install this package inside the same virtual environment if your project is using.
+
 ## Usage
 
 The main motivation for Django Quik is to provide features without modifying your any code.
