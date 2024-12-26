@@ -72,7 +72,7 @@ class ThreadSafeChangeCallbacks:
 
 
 class FilesWatchEventHandler(FileSystemEventHandler):
-    def __init__(self, dir_change_callbacks: ThreadSafeChangeCallbacks, delay: int = 0.5):
+    def __init__(self, dir_change_callbacks: ThreadSafeChangeCallbacks, delay: int = 1):
         """
         Create new FilesWatchEventHandler instance.
 
