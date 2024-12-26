@@ -1,0 +1,7 @@
+/dist
+/django-demo
+**/__pycache__/
+/.idea
+/.venv
+/src/django_quik.egg-info
+.env

@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "django-quik"
+version = "0.0.1"
+description = "Powering up your Django experience."
+authors = [
+    { name = "Tej Magar", email = "tejmagar20510@gmail.com" },
+]
+readme = "README.md"
+dependencies = [
+    "watchdog>=6.0.0"
+]
+
+[tools.setuptools]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+python_requires = ">=3.7"
+
+[project.scripts]
+django-quik = "django_quik.cli:handle_cli"
+
+[project.urls]
+Repository = "https://github.com/tejmagar/django-quik"
+"Bug Tracker" = "https://github.com/tejmagar/django-quik/issues"
+
