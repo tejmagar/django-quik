@@ -224,7 +224,7 @@ class WebServer:
             stream_client.shutdown()
             return
 
-        request_info, headers = parse_headers(raw_headers)
+        response_info, headers = parse_headers(raw_headers)
 
         # Extract content type from response.
         content_type = header_value(headers, 'Content-Type')
@@ -246,8 +246,11 @@ class WebServer:
                 response_body = self.inject_event_code(response_body)
                 response_body_bytes = response_body.encode()
 
+                # Force connection close by the browser if Django server tries to use keep alive connection.
                 modify_headers(headers, 'Content-Length', f'{len(response_body_bytes)}')
-                header_bytes = build_header_bytes(request_info, headers)
+                response_info = ('HTTP/1.0', response_info[1], response_info[2])
+                modify_headers(headers, 'Connection', 'Close')
+                header_bytes = build_header_bytes(response_info, headers)
 
                 # Write response headers received from Django server to connected client.
                 stream_client.write_chunk(header_bytes)
@@ -259,7 +262,7 @@ class WebServer:
 
         else:
             # Body content is not modified, using existing headers without modification.
-            header_bytes = build_header_bytes(request_info, headers)
+            header_bytes = build_header_bytes(response_info, headers)
 
             # Write response headers received from Django server to connected client.
             stream_client.write_chunk(header_bytes)
@@ -324,7 +327,7 @@ class WebServer:
         if path.startswith(self.refresh_path):
             return self.serve_refresh_event_page(stream_client)
 
-        http_version = 'HTTP/1.0'  # Use HTTP/1.0 for easy parsing. Use single connection per page.
+        http_version = 'HTTP/1.0'  # Use HTT                http_version P/1.0 for easy parsing. Use single connection per page.
         header_bytes_to_proxy = build_header_bytes((request_method, path, http_version), headers)
 
         # Create new socket connection for each new request.
