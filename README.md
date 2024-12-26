@@ -6,6 +6,12 @@ while you modify template, static files .etc
 It is a wrapper around Django CLI and you don't need to modify your existing code or add it in installed apps
 like other livereload packages.
 
+## Installation
+
+```bash
+pip install django-quik
+```
+
 ## Usage
 
 The main motivation for Django Quik is to provide features without modifying your any code.
