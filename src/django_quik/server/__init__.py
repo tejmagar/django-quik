@@ -124,9 +124,9 @@ class WebServer:
     def listen_files_change(self):
         event_handler = FilesWatchEventHandler(self.dir_change_callbacks)
         observer = Observer()
-        observer.schedule(event_handler, 'templates/', recursive=True)
-        # for path in self.configuration.watch_dirs:
-        #     observer.schedule(event_handler, path, recursive=True)
+
+        for path in self.configuration.watch_dirs:
+            observer.schedule(event_handler, path, recursive=True)
 
         observer.start()
 
