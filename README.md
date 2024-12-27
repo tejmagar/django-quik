@@ -36,6 +36,5 @@ which will be triggered from `Server Side Event(SSE)`.
 
 ## Conclusion
 
-For now monitoring `APP_DIRS` from installed app is not supported yet. I am planning to add `tailwind` support soon.
-
+I am planning to add `tailwind` support soon.
 Note: I have tested in Linux and it works.
