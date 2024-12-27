@@ -13,6 +13,8 @@ pip install django-quik
 ```
 
 Make sure to install this package inside the same virtual environment if your project is using.
+Now open url: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+
 
 ## Usage
 
