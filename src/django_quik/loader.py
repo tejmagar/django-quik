@@ -1,9 +1,13 @@
 import importlib
 import os
 import sys
+from pathlib import Path
+from collections import OrderedDict
 
 from types import ModuleType
 from typing import List, Optional
+
+from django.apps import apps
 
 
 def load_manage_py() -> ModuleType:
@@ -59,6 +63,32 @@ def load_settings_module(settings_module_path: str) -> ModuleType:
     return importlib.import_module(settings_module_path)
 
 
+def load_all_module_template_dirs(template_dirs: List[Path]) -> List[Path]:
+    """
+    Load all template dirs from apps.
+
+    :return: List[str]
+    """
+
+    # Store valid template directories.
+    valid_template_dirs = []
+
+    for app_dir in template_dirs:
+        # Load all installed apps path
+        for app_config in apps.get_app_configs():
+            module_path_list = app_config.module.__path__
+
+            # Loop through module path list
+            for module_path in module_path_list:
+                template_dir = Path(module_path).joinpath(app_dir)
+
+                # Ignore invalid or non exising paths.
+                if template_dir.exists():
+                    valid_template_dirs.append(template_dir)
+
+    return valid_template_dirs
+
+
 def load_template_dirs(settings_module: ModuleType) -> List[str]:
     """
     Load all the template directories. APP_DIRS is not supported yet.
@@ -68,15 +98,14 @@ def load_template_dirs(settings_module: ModuleType) -> List[str]:
     if not hasattr(settings_module, 'TEMPLATES'):
         return []
 
-    templates = getattr(settings_module, 'TEMPLATES')
-    if type(templates) is not list:
+    if type(settings_module.TEMPLATES) is not list:
         print('Warn: Templates specified is not list.')
         return []
 
     template_dirs = []
 
     # Loop through TEMPLATES list of the settings.
-    for template in templates:
+    for template in settings_module.TEMPLATES:
         # If items of TEMPLATES is not dictionary, skip.
         if not type(template) is dict:
             print('Warn: Template specified is not dict.')
@@ -90,6 +119,12 @@ def load_template_dirs(settings_module: ModuleType) -> List[str]:
         # Add all the specified directories in the list.
         template_dirs.extend(dirs)
 
+        if template.get('APP_DIRS') and hasattr(settings_module, 'INSTALLED_APPS'):
+            app_template_dirs = load_all_module_template_dirs(dirs)
+            template_dirs.extend(app_template_dirs)
+
+    # Remove duplicate paths.
+    template_dirs = list(OrderedDict.fromkeys(template_dirs))
     return template_dirs
 
 
