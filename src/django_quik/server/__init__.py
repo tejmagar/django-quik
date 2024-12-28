@@ -72,7 +72,7 @@ class ThreadSafeChangeCallbacks:
 
 
 class FilesWatchEventHandler(FileSystemEventHandler):
-    def __init__(self, dir_change_callbacks: ThreadSafeChangeCallbacks, delay: int = 1):
+    def __init__(self, dir_change_callbacks: ThreadSafeChangeCallbacks, delay: int = 0.8):
         """
         Create new FilesWatchEventHandler instance.
 
@@ -241,6 +241,7 @@ class WebServer:
                 return
 
             try:
+                print(f'Response content-type is text/html. Injecting reload script')
                 # Read data from Django server.
                 response_body = read_text_body(stream_target, content_length)
                 response_body = self.inject_event_code(response_body)
@@ -248,6 +249,10 @@ class WebServer:
 
                 # Force connection close by the browser if Django server tries to use keep alive connection.
                 modify_headers(headers, 'Content-Length', f'{len(response_body_bytes)}')
+
+                # Inject custom header for debug purpose.
+                modify_headers(headers, 'X-Proxy-Server', 'Django Quik Injected')
+
                 response_info = ('HTTP/1.0', response_info[1], response_info[2])
                 modify_headers(headers, 'Connection', 'Close')
                 header_bytes = build_header_bytes(response_info, headers)
@@ -265,6 +270,17 @@ class WebServer:
                 stream_target.close()
 
         else:
+            upgrade_header = header_value(headers, 'Upgrade').lower()
+
+            # Except for websocket, downgrade HTTP version to HTTP/1.0.
+            if not upgrade_header and not "websocket" in upgrade_header:
+                # Downgrade HTTP Version to HTTP/1.0
+                response_info = ('HTTP/1.0', response_info[1], response_info[2])
+                modify_headers(headers, 'Connection', 'Close')
+
+            # Inject custom header for debug purpose.
+            modify_headers(headers, 'X-Proxy-Server', 'Django Quik Stream')
+
             # Body content is not modified, using existing headers without modification.
             header_bytes = build_header_bytes(response_info, headers)
 
