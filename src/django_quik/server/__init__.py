@@ -257,8 +257,12 @@ class WebServer:
 
                 # Write response body to stream client.
                 stream_client.write_chunk(response_body_bytes)
+
+                stream_client.shutdown()
+                stream_target.shutdown()
             except (StreamReadException, StreamWriteException, OSError, Exception):
                 stream_client.shutdown()
+                stream_target.shutdown()
 
         else:
             # Body content is not modified, using existing headers without modification.
