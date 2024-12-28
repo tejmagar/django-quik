@@ -225,7 +225,6 @@ class WebServer:
             return
 
         response_info, headers = parse_headers(raw_headers)
-        print('read from server: ', response_info, headers)
 
         # Extract content type from response.
         content_type = header_value(headers, 'Content-Type')
@@ -276,11 +275,8 @@ class WebServer:
             # Body content is not modified, using existing headers without modification.
             header_bytes = build_header_bytes(response_info, headers)
 
-            print('Wrote to stream')
             # Write response headers received from Django server to connected client.
             stream_client.write_chunk(header_bytes)
-
-            print("Wating for more")
 
             # Proxy all other content types
             while True:
