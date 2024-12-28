@@ -269,10 +269,10 @@ class WebServer:
                 stream_target.close()
 
         else:
-            upgrade_header = header_value(headers, 'Upgrade').lower()
+            upgrade_header = header_value(headers, 'Upgrade')
 
             # Except for websocket, downgrade HTTP version to HTTP/1.0.
-            if not upgrade_header and not "websocket" in upgrade_header:
+            if not upgrade_header and not "websocket" in upgrade_header.lower():
                 # Downgrade HTTP Version to HTTP/1.0
                 response_info = ('HTTP/1.0', response_info[1], response_info[2])
                 modify_headers(headers, 'Connection', 'Close')
