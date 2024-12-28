@@ -242,7 +242,7 @@ def read_text_body(headers: OrderedDict[str, List[str]], stream: Stream) -> str:
 
     content_length = header_value(headers, 'Content-Length')
 
-    if content_length:
+    if content_length is not None:
         try:
             content_length = int(content_length)
         except ValueError:
@@ -250,7 +250,7 @@ def read_text_body(headers: OrderedDict[str, List[str]], stream: Stream) -> str:
 
     buffer = b''
 
-    if content_length:
+    if content_length is not None:
         read_size = 0
         while read_size < content_length:
             chunk = stream.read_chunk()
