@@ -230,21 +230,39 @@ def build_header_bytes(request_info: Tuple[str, str, str], headers: OrderedDict[
     return data
 
 
-def read_text_body(stream: Stream, content_length: int) -> str:
+def read_text_body(headers: OrderedDict[str, List[str]], stream: Stream) -> str:
     """
-    Read text body from stream as str.
+    Read text body from stream as str. If content length header is present, read content upto the size else
+    read until the target closes socket.
 
+    :param headers: Headers
     :param stream: Stream
-    :param content_length: Content-Length
     :return: response body
     """
 
+    content_length = header_value(headers, 'Content-Length')
+
+    if content_length:
+        try:
+            content_length = int(content_length)
+        except ValueError:
+            content_length = None
+
     buffer = b''
-    read_size = 0
-    while read_size < content_length:
-        chunk = stream.read_chunk()
-        buffer += chunk
-        read_size += len(chunk)
+
+    if content_length:
+        read_size = 0
+        while read_size < content_length:
+            chunk = stream.read_chunk()
+            buffer += chunk
+            read_size += len(chunk)
+
+    else:
+        while True:
+            try:
+                buffer += stream.read_chunk()
+            except StreamReadException:
+                break
 
     decoded = buffer.decode(errors='ignore')
     return decoded

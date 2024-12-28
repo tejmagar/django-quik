@@ -225,6 +225,7 @@ class WebServer:
             return
 
         response_info, headers = parse_headers(raw_headers)
+        print('read from server: ', response_info, headers)
 
         # Extract content type from response.
         content_type = header_value(headers, 'Content-Type')
@@ -233,16 +234,8 @@ class WebServer:
         # trigger file changes.
         if content_type and 'text/html' in content_type:
             try:
-                content_length = int(header_value(headers, 'Content-Length'))
-            except (ValueError, TypeError):
-                # Close both streams
-                stream_target.close()
-                stream_client.close()
-                return
-
-            try:
                 # Read data from Django server.
-                response_body = read_text_body(stream_target, content_length)
+                response_body = read_text_body(headers, stream_target)
                 response_body = self.inject_event_code(response_body)
                 response_body_bytes = response_body.encode()
 
@@ -264,7 +257,7 @@ class WebServer:
 
                 stream_client.close()
                 stream_target.close()
-            except (StreamReadException, StreamWriteException, OSError, Exception):
+            except (StreamReadException, StreamWriteException, OSError, Exception) as e:
                 stream_client.close()
                 stream_target.close()
 
@@ -283,8 +276,11 @@ class WebServer:
             # Body content is not modified, using existing headers without modification.
             header_bytes = build_header_bytes(response_info, headers)
 
+            print('Wrote to stream')
             # Write response headers received from Django server to connected client.
             stream_client.write_chunk(header_bytes)
+
+            print("Wating for more")
 
             # Proxy all other content types
             while True:
