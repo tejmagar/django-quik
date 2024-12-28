@@ -159,7 +159,7 @@ class WebServer:
             request_info, headers = parse_headers(header_bytes)
             self.serve_page(stream, request_info, headers)
         except (StreamReadException, StreamWriteException, Exception):
-            stream.shutdown()
+            stream.close()
 
     def inject_event_code(self, html: str) -> str:
         """
@@ -202,8 +202,8 @@ class WebServer:
                 stream_target.write_chunk(stream_client.read_chunk())
             except (StreamReadException, StreamWriteException, OSError, Exception):
                 # If anything goes wrong, shutdown both streams.
-                stream_client.shutdown()
-                stream_target.shutdown()
+                stream_client.close()
+                stream_target.close()
                 return
 
     def send_data_django_server_to_client(self, stream_target: Stream, stream_client: Stream) -> None:
@@ -220,8 +220,8 @@ class WebServer:
             raw_headers = read_headers(stream_target)
         except (StreamReadException, StreamWriteException, OSError, Exception):
             # If anything goes wrong, shutdown both streams.
-            stream_target.shutdown()
-            stream_client.shutdown()
+            stream_target.close()
+            stream_client.close()
             return
 
         response_info, headers = parse_headers(raw_headers)
@@ -236,8 +236,8 @@ class WebServer:
                 content_length = int(header_value(headers, 'Content-Length'))
             except (ValueError, TypeError):
                 # Close both streams
-                stream_target.shutdown()
-                stream_client.shutdown()
+                stream_target.close()
+                stream_client.close()
                 return
 
             try:
@@ -258,11 +258,11 @@ class WebServer:
                 # Write response body to stream client.
                 stream_client.write_chunk(response_body_bytes)
 
-                stream_client.shutdown()
-                stream_target.shutdown()
+                stream_client.close()
+                stream_target.close()
             except (StreamReadException, StreamWriteException, OSError, Exception):
-                stream_client.shutdown()
-                stream_target.shutdown()
+                stream_client.close()
+                stream_target.close()
 
         else:
             # Body content is not modified, using existing headers without modification.
@@ -277,8 +277,8 @@ class WebServer:
                     stream_client.write_chunk(stream_target.read_chunk())
                 except (StreamReadException, StreamWriteException, OSError, Exception):
                     # If anything goes wrong, shutdown both streams.
-                    stream_target.shutdown()
-                    stream_client.shutdown()
+                    stream_target.close()
+                    stream_client.close()
                     return
 
     def serve_refresh_event_page(self, stream_client: Stream) -> None:

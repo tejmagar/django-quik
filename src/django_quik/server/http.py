@@ -82,9 +82,9 @@ class Stream:
         """
         self.restored_bytes += data
 
-    def shutdown(self) -> None:
+    def close(self) -> None:
         """
-        Shutdown socket. If already closed, fails silently.
+        Closes inner socket. If already closed, fails silently.
         :return:
         """
 
