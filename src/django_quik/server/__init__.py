@@ -241,7 +241,6 @@ class WebServer:
                 return
 
             try:
-                print(f'Response content-type is text/html. Injecting reload script')
                 # Read data from Django server.
                 response_body = read_text_body(stream_target, content_length)
                 response_body = self.inject_event_code(response_body)
