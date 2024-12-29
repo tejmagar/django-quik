@@ -2,7 +2,9 @@ import os
 import sys
 import re
 import threading
+from threading import Thread
 from time import sleep
+from types import ModuleType
 
 from typing import Tuple
 
@@ -15,6 +17,7 @@ from .loader import (
     load_valid_watch_dirs
 )
 from .server import WebServer
+from .tailwind import generate_tailwind_config_file, handle_tailwind_build
 
 DJANGO_QUIK_ADDRESS = ('127.0.0.1', 8000)
 DJANGO_PROXY_PORT = 8001
@@ -70,6 +73,22 @@ def set_cli_running_state() -> None:
     os.environ.setdefault('CLI_RUNNING', '1')
 
 
+def handle_add_arguments(settings_module: ModuleType) -> None:
+    """
+    Additional features from Django Quik.
+    :return: None
+    """
+
+    if len(sys.argv) < 2:
+        exit(0)
+
+    if sys.argv[2] == "tailwindcss":
+        generate_tailwind_config_file(settings_module)
+        return
+
+    print(f'Unknown command: {sys.argv[2]}')
+
+
 def handle_cli():
     """
     This function is executed from the command line and is called multiple times by Django for reloading the project.
@@ -99,6 +118,12 @@ def handle_cli():
         print(f'Could not load settings: {settings_module_path}')
         exit(1)
 
+    # Check if it's additional Django Quik feature.
+    if len(sys.argv) > 1:
+        if sys.argv[1] == 'init':
+            handle_add_arguments(settings_module)
+            exit(0)
+
     if hasattr(manage_py, 'main'):
         # Modify run server arguments.
         if len(sys.argv) > 1 and sys.argv[1] == 'runserver':
@@ -122,6 +147,13 @@ def handle_cli():
                 thread = threading.Thread(target=run_blocking_proxy_server, args=(configuration,))
                 thread.daemon = True
                 thread.start()
+
+                # Check if tailwindcss configuration file exists.
+                if os.path.exists('tailwind.config.js'):
+                    # Run some tasks in background thread.
+                    thread = Thread(target=handle_tailwind_build)
+                    thread.daemon = True
+                    thread.start()
 
         set_cli_running_state()
         manage_py.main()
