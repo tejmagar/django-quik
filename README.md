@@ -50,7 +50,4 @@ Django Quik creates the proxy server then starts Django development server inter
 the client and the Django server. If the content type is `text/html` being served, it injects script to reload page
 which will be triggered from `Server Side Event(SSE)`.
 
-## Conclusion
 
-I am planning to add `tailwind` support soon.
-Note: I have tested in Linux and it works.
