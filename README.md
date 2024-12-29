@@ -1,4 +1,4 @@
-# Django Quik
+# Django Quik (Livereload + Tailwindcss)
 
 This project aims to provide extra power while developing Django applications such as livereload and tailwindcss support
 while you modify template, static files .etc
