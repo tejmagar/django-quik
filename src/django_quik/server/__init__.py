@@ -338,7 +338,7 @@ class WebServer:
         if path.startswith(self.refresh_path):
             return self.serve_refresh_event_page(stream_client)
 
-        http_version = 'HTTP/1.0'  # Use HTT                http_version P/1.0 for easy parsing. Use single connection per page.
+        http_version = 'HTTP/1.0'  # Use HTTP/1.0 for easy parsing. Use single connection per page.
         header_bytes_to_proxy = build_header_bytes((request_method, path, http_version), headers)
 
         # Create new socket connection for each new request.
